@@ -1,21 +1,41 @@
+Enum
+: #define이 없다(설정에만 사용)
+public enum e_name{
+c1 = 0, c2 = 1, c3 = 2}
+처럼 쓰고, 사용시에 enum e_name e 식으로 선언하고 사용한다.
+int랑 enum간의 캐스팅이 가능하다. int -> enum에만 명시적으로 캐스팅(e_name)i처럼 해준다.
+
 
 setup()
 : 처음 한번 시행
 : 보통 여기서 변수 초기화
 : 특히 유니티에서 전역변수 선언에서 초기화 했는데 문제가 생기면 Inspector가 초기화 값을 덮어쓰는 경우가 생긴다.
 
-update()와 FixedUpdate
-update
+update()와 FixedUpdate, lateupdate
+update : 프레임마다
+FixedUpdate : 고정 시간마다
+lateupdata : update함수가 종료된 다음
 
+update는 체크등에서 사용하면 좋다
+FixedUpdate는 물리적 움직임에 사용하면 좋다(그런데 요건 체크(클릭등)에는 안쓰는게 좋은 것 같다. 자꾸 입력이 씹히는 문제가 생긴다. 시간 간격에 입력이 들어와서)
 
 GetComponent<>()
 : 해당되는 컴포넌트 가져오기(비활성화 상태X)
 
 AddComponent<>()
 : 해당되는 컴포넌트 추가
+: 반환값이 추가한 컴포넌트(getcomponent랑 동일)
+: ex) RigidBody r = a.AddComponent<Rig...>()
+: 이런 식이 r만 수정하면 되서 더 효과적
 
 Component.enabled = true or false
 : 컴포넌트 활성화 비활성화
+
+++ 컴포넌트를 수정할때는 inspector의 항목을 보고 정하면 된다. 대부분 [<>().명칭] 같은 식으로 접근이 가능하다
+
+Instatantiate(GameObject g, vector3 pos, quaternion angle)
+: 오브젝트 생성
+: 간단하게 new GameObject("name")으로 만들기 가능
 
 #transform위치 관련
 transform.Translate(x, y, z)
@@ -59,9 +79,16 @@ Vector3 right : x축(오른쪽)
 transform.localPosition :
 : 게임 오브젝트의 상대좌표, 부모가 있을 경우, 부모로 떨어진 좌표
 
-transform.parent 
+transform.parent = ParentTransform 
+transform.SetParent(ParentTransform)
 : 게임 오브젝트의 부모 오브젝트 트랜스폼
-: GetComponentInParent
+:  ,로 추가 인수  worldPositionStays : true or false / 부모 기준으로 위치 조정, true는 월드 기준으로 유지
+
+GetComponentInParent
+: 부모의 컴포넌트 가져오기
+
+transform.find("")
+: 자식오브젝트에서 이름으로 찾기
 
 transform.GetChild(int index)
 : index번 자식 트랜스폼 (0번부터 시작)(transform.childCount까지)
@@ -135,8 +162,12 @@ rigidbody.MovePosition(벡터3)
 rigidbody.MoveRotation(벡터3)
 : 회전
 
-OnCollision : collider만, 둘중하나는 is trigger체크
-OnTrigger : collider, 둘중하나는 rigidbody, is trigger체크 X
+#Enter, Stay, Exit
+OnCollision충돌
+: 둘 다 Collider, isTrigger전부 비활성화
+
+OnTrigger트리거 
+: 둘 다 collider, 둘중하나는 isTrigger활성화
 
 
 
@@ -238,56 +269,6 @@ get {
 
 #
 
-
-#AI
-- gameobject에 static이있음. 이는 움직이지 않는 물체를 의미함
-- 따라서 외부의 물리법칙(빛 반사 등)을 고정 시킬 수 있음.
-
-유니티 패키지 : AI Navigation
-- window -> AI -> Navigation
-
-- 구버전 : 오브젝트를 선택하고 window 네비게이션 창에서 bake한다. 
-- 신버전 : 오브젝트에 navmeshsurface컴포넌트를 베이크 한다.
-- surface의 경우에는 가장 큰 오브젝트, 내지는 부모에다가 surface를 넣으면 이동할 수있는 surface가 전부 bake된다. height, stepheight에 따라 자동으로 할당된다.
-
-
-#nav mesh obstacle
-- 방해물에 사용한다. surface를 깎아내서 경로를 찾는 carve기능이 핵심이다.
-move threshold 
-- 해당 거리만큼 이동했을 떄 carve를 수행한다. 
-- 즉 물체가 0.1m 미만 이동했다면 carve에 변화가 없다.
-- 이는 자그마하게 떨리는 물체, 내지는 움직임이 있으나 천천히 움직이는 물체에서 유용
-time to stationary 
-- 해당 시간 만큼 멈추어있으면 carve를 중단한다. 
-- 자동차를 생각하면 편하다. 움직이면서 carve를 계속하다가 몇초 멈추면 carve를 멈춘다.
-
-#nav mesh agent
-- 실제로 움직이는 오브젝트에서 적용한다. 
-- 코드에서 컴포넌트로 받아서 사용한다. 
-- agent는 원통형을 모델로해서 목표를 찾는다. 
-- 사용 함수 or 키워드
-radius : Agent의 반경. agent간의 충돌 계산 or 장애물 돌아갈 지에 대한 계산
-stoppingDistance : 목표 위치에 가까워 졌을 시 서서히 정지
-speed : 속도
-remainingDistance : 남은 거리
-desiredVelocity : 목표 속도(실제 속도와 다름)
-isStopped : true - 정지 / false - 움직임
-enabled : 컴포넌트 자체 비활성화(agent끼리 서로 피하므로, 이걸해주면 서로 안피함)
-
-Move(vector3 offset) : 갈 수 있는 경로에서 파라미터 만치 이동
-SetDestination(vector3 target) : 목표 지정. 인수를 넘기면 해당 목표까지 이동(회전도 함)
-- 이경우 rigidbody보다 우선시 되어서 rigidbody를 이용한 회전 이동이 불가능.
-ResetPath() : 설정되어있던 경로 지움(정지하게 됨)
-CalculatePath(vector3 targetPosition, NavMeshPath path) : 경로 반환
-- NavMeshPath[]에 최단 경로를 계산했을 때의 코너를 집어넣는다. 
-
-#navmeshlink
-- 두개의 mesh지점을 연결한다. (계단 등에서 사용하면 좋을 듯하다.)
-- 이 경우에 경로에 대한 cost할당도 가능하다
-
-#navmeshmodifier
-- mesh영역에서 해당하는 부분을 따로 설정해준다.
-- 이 컴포넌트는 해당하는 사물에만 넣으며, surface를 다시 bake해줄때 이 곳에서 적용한 수정사항이 적용된다.
 
 
 
@@ -430,7 +411,7 @@ Multiline과 비슷, 폭에 맞춰 자동으로 줄바꿈과 슬라이드바 표
 퀘스트
 - 정보를 스크립터블 오브젝트로 관리
 - 퀘스트 매니저에서 스크립터블 오브젝트로 퀘스트를 관리한다
-- 진행도나 클리어 여부는 외부에서 퀘스트 매니저 내부 checking함수를 호출(오브젝트 파괴, 아이템 습득, 대화시)하며 id와 해당되는 퀘스트 타입을 전달
+- 진행도나 클리어 여부는 외부에서 퀘스트 매니저 내부의 checking함수를 호출(오브젝트 파괴, 아이템 습득, 대화시)하며 id와 해당되는 퀘스트 타입을 전달
 - 그리고 checking함수에서 가지고 있는 퀘스트 중 해당하는 것이 있다면 진행도를 플러스 시키면 된다.
 
 
@@ -453,19 +434,14 @@ Target.target();		//로 사용가능하다.
 
 
 
-
-
-
 #UI
 - gameobject상에서 anchorPosition으로 정의되어있음
-- getcomponet에서 RectTransform을 받아서 쓰는 것이 정확
+- 따라 getcomponet에서 RectTransform을 받아서 쓰는 것이 정확
 - RectTransform에서 AnchoredPosition을 사용하는 것이 좋음(참고 . translate쓰면 localposition기준으로 동작)
 - 이게 canvus기준으로 얼마만큼 떨어져 있는지 체크하는 것
 
-
-
 - canvus생성후 그 안에서 조절
-- canvus는 스크린 크기로 조절하는 것이 좋음.
+- canvus는 화면에 보여지는 경우에는 ScreenSpace로 / 객체의 부작하는 경우에는 WorldSpace로조절하는 것이 좋음.
 - canvus의 RenderMode에서 camera로 시점변환
 - 이 안에서는 AnchorPosition으로 조절
 
@@ -499,8 +475,6 @@ https://bokhead.tistory.com/119
 - 아래 보면 onclick창이 있음, Button을 눌렀을 때 작동할 행동을 의미함
 - 이곳에 오브젝트를 넣고, onclick시 시행할 기능을 고르면 된다. (ButtonListener코드를 오브젝트에 넣고 그 오브젝트와 연결하면 됨)
 
-
-
 tilemap
 - tile, tile brush 이 그전에 미리 필요
 - 사진을 잘라서 타일로 만들고(multiple, pixel per unit을 128로 한 다음에 sprite editor)
@@ -521,8 +495,6 @@ tilemap
 6. 각각 오브젝트에 미니맵에서 보일 레이어들을 추가
 
 
-Invoke()
-시간 딜레이를 주고 함수를 시행시키는 함수
 
 Invoke("함수이름", a);
 a 시간이 지난후 함수를 시행시킨다. 
@@ -537,7 +509,7 @@ isInvoking으로 체크 가능
 
 코루틴 보다 성능 떨어짐
 
-
+---------패키지-----------
 #Cinemachine
 
 - 카메라 기능 다수
@@ -557,13 +529,103 @@ SoftZone : 이 너머로는 카메라가 즉각 적으로 이동 = 따라오는 
 빈 화면 : 이 공간에서는 카메라 안 움직임
 파란 화면 : 이 공간에서 카메라가 천천히 물체를 다라감
 빨간 화면 : 이 공간에서 카메라가 즉각적으로 물체를 따라감 
-
+ㅁ
 - Extension
 - confinder 제한자, 카메라가 있을 공간을 제한 가능
 - 제한될 공간에 composite or polygon 콜라이더가 필요
 - 콜라이더를 isTrigger를 체크 
 - 카메라 인스펙터의 Bonding shape로 옮기면 된다.
 
+
+
+#Probuilder + polybrush + progrid(preview package)
+--이걸 이제 알았어....
+
+1. probuilder
+- tool창 추가 됨, 프로빌더를 클릭시 뜨게 되고
+- 기능은 좀 더 알아봐야 하지만, Blender와 같은 모델링 디자인 프로그램과 같아보임
+- 기존 물체는 항목에서 probuilderize를 하고 수정해야 함
+-> 이후 위치 이동이나 사이즈 조절등을 점, 선, 면 레벨에서 할 수 있음
+-> 창으로는 bevel이나 subdived, extrude, pivot설정 면 병합 등 여러개를 할 수 있음
+-> 이 면을 클릭하고, shader를 각각 칠하는 것도 가능(유용)
+
+-> SCENE설정에 WIREFRAME모드가 있으므로 이용하면 좋음
+
+2. polybrush 
+- sculpture모드
+
+3. 
+
+
+
+
+
+
+
+#AI
+- gameobject에 static이있음. 이는 움직이지 않는 물체를 의미함
+- 따라서 외부의 물리법칙(빛 반사 등)을 고정 시킬 수 있음.
+
+유니티 패키지 : AI Navigation
+- window -> AI -> Navigation
+
+- 구버전 : 오브젝트를 선택하고 window 네비게이션 창에서 bake한다. 
+- 신버전 : 오브젝트에 navmeshsurface컴포넌트를 베이크 한다.
+- surface의 경우에는 가장 큰 오브젝트, 내지는 부모에다가 surface를 넣으면 이동할 수있는 surface가 전부 bake된다. height, stepheight에 따라 자동으로 할당된다.
+
+
+#nav mesh obstacle
+- 방해물에 사용한다. surface를 깎아내서 경로를 찾는 carve기능이 핵심이다.
+move threshold 
+- 해당 거리만큼 이동했을 떄 carve를 수행한다. 
+- 즉 물체가 0.1m 미만 이동했다면 carve에 변화가 없다.
+- 이는 자그마하게 떨리는 물체, 내지는 움직임이 있으나 천천히 움직이는 물체에서 유용
+time to stationary 
+- 해당 시간 만큼 멈추어있으면 carve를 중단한다. 
+- 자동차를 생각하면 편하다. 움직이면서 carve를 계속하다가 몇초 멈추면 carve를 멈춘다.
+
+#nav mesh agent
+- 실제로 움직이는 오브젝트에서 적용한다. 
+- 코드에서 컴포넌트로 받아서 사용한다. 
+- agent는 원통형을 모델로해서 목표를 찾는다. 
+- 사용 함수 or 키워드
+radius : Agent의 반경. agent간의 충돌 계산 or 장애물 돌아갈 지에 대한 계산
+stoppingDistance : 목표 위치에 가까워 졌을 시 서서히 정지
+speed : 속도
+remainingDistance : 남은 거리
+desiredVelocity : 목표 속도(실제 속도와 다름)
+isStopped : true - 정지 / false - 움직임
+enabled : 컴포넌트 자체 비활성화(agent끼리 서로 피하므로, 이걸해주면 서로 안피함)
+
+Move(vector3 offset) : 갈 수 있는 경로에서 파라미터 만치 이동
+SetDestination(vector3 target) : 목표 지정. 인수를 넘기면 해당 목표까지 이동(회전도 함)
+- 이경우 rigidbody보다 우선시 되어서 rigidbody를 이용한 회전 이동이 불가능.
+ResetPath() : 설정되어있던 경로 지움(정지하게 됨)
+CalculatePath(vector3 targetPosition, NavMeshPath path) : 경로 반환
+- NavMeshPath[]에 최단 경로를 계산했을 때의 코너를 집어넣는다. 
+
+#navmeshlink
+- 두개의 mesh지점을 연결한다. (계단 등에서 사용하면 좋을 듯하다.)
+- 이 경우에 경로에 대한 cost할당도 가능하다
+
+#navmeshmodifier
+- mesh영역에서 해당하는 부분을 따로 설정해준다.
+- 이 컴포넌트는 해당하는 사물에만 넣으며, surface를 다시 bake해줄때 이 곳에서 적용한 수정사항이 적용된다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------
 
 
 
@@ -589,6 +651,8 @@ ex) HP = 100 -> value = 100 / HP += 100 -> value = 100 + HP
 #배경화면 색 설정
 window -> 렌더링 -> light -> skybox가 아니라 color
 
+#inspector에서
+물체를 transform시킬때 컨트롤을 누르고 이동하면 격자 단위로 이동 = 위치 맞추기 수월
 
 
 
