@@ -5,6 +5,9 @@ c1 = 0, c2 = 1, c3 = 2}
 처럼 쓰고, 사용시에 enum e_name e 식으로 선언하고 사용한다.
 int랑 enum간의 캐스팅이 가능하다. int -> enum에만 명시적으로 캐스팅(e_name)i처럼 해준다.
 
+Instance
+: PlayerInventory.Instance. ...같은 식으로 식이 포함되지 않더라도 다른 코드에서 참조 가능하다.
+
 
 setup()
 : 처음 한번 시행
@@ -33,7 +36,7 @@ Component.enabled = true or false
 
 ++ 컴포넌트를 수정할때는 inspector의 항목을 보고 정하면 된다. 대부분 [<>().명칭] 같은 식으로 접근이 가능하다
 
-Instatantiate(GameObject g, vector3 pos, quaternion angle)
+Instatantiate(GameObject g, vector3 pos, Quaternion angle)
 : 오브젝트 생성
 : 간단하게 new GameObject("name")으로 만들기 가능
 
@@ -52,8 +55,10 @@ trasform.rotate(벡터3)
 : 해당 각도 만큼 회전
 
 Quaternion.Euler(벡터3)
-: 벡터 회전을 쿼터니온으로 변환 가능. 
+: transform의 각도를 쿼터니온으로 변환 가능. 
 : 보통 transform.rotation과 같이 사용
+: 참고로 quaternion.eular이랑 Quaternion.euler이랑 다름 -> 대문자 씀
+: 회전 위치 정할때(target)할때, Quaternion.euler에다가 현재 rotation곱하면 현재 기준이 됨
 
 Quaternion.LookRotation
 : 해당 방향을 바라보는 각도.
@@ -83,6 +88,7 @@ transform.parent = ParentTransform
 transform.SetParent(ParentTransform)
 : 게임 오브젝트의 부모 오브젝트 트랜스폼
 :  ,로 추가 인수  worldPositionStays : true or false / 부모 기준으로 위치 조정, true는 월드 기준으로 유지
+: 간단하게 나중에 transform.parent = null하면 해제된다.
 
 GetComponentInParent
 : 부모의 컴포넌트 가져오기
@@ -139,6 +145,7 @@ vector3.lerp(vector3 a, vector3 b, t)
 : t는 얼마나 보간하는지, 끌리는 정도
 : 즉 a + (b-a) * t를 반환
 slerp(현재 위치, 목적 위치, 이동 값) 
+ex) transform.position = Vector3.lerp(now, targer, t) //t += time.deletatime
 
 
 #rigidbody물리적인 작동
@@ -267,7 +274,17 @@ get {
 
 그러나 싱글톤은 계속 존재하므로 비효율적이고, 씬 전환이 많으면 유지 보수하는데 힘들더라
 
-#
+#메테리얼(material)
+
+- 쉐이더 팩
+- 블렌더와 유사하나 smootless(1 - roughness)를 사용
+
++ 유리 
+surface type = transparent
+blending mode = multiply
+Map과 Smoothless를 정의
+거울은 0과 1
+유리는 1과 1
 
 
 
@@ -644,7 +661,7 @@ ex) 프로퍼티명을 Num, 변수명을 num이라고 설정했을시.
 Num을 호출시 get키워드가 호출됨
 Num을 수정시 set이 호출됨
 value의 값은 수정되기 전의 값이다 
-ex) HP = 100 -> value = 100 / HP += 100 -> value = 100 + HP 
+ex) HP = 100 -> value = 100        HP += 100 -> value = 100 + HP 
 
 ]
 
