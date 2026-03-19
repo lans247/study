@@ -313,6 +313,31 @@ shirnklap모디파이어를 통해서 lattice를 골라서 붙힘
 3. 오브젝트 클릭 후 bone클릭 -> ctrl + p를 통해서 연결(weight자동) ( 이후 오브젝트와 bone을 동시에 클릭하고 Weight모드에서 수정가능) (Amature안에 모델이 존재)
 4. 이후 Pose모드에서 bone을 수정하기 (오브젝트 모드에서는 수정해도 안보임)
 
+모든 오브젝트에는 (하나라도) amature를 넣어야 하며 pose모드에서 수정가능하다. 
+
+액션 에디터에는 하나의 오브젝트에 대해서 액션이 하나씩 저장되며, dope sheet는 모든 애니메이션을 현실 시점에서 수정할 수 있다.
+즉 
+
+ex) 5개의 오브젝트가 있다면 
+1. action editor에서 각각 부위에 대해서 지정한다 action1 - 1, 2, 3, 4 5
+2. dope sheet에서 수정한다. 
+3. 새로운 액션을 만들고 싶으면 action editor에서 다시 각각 부위에 대해서 액션 시트를 만든다(복제해서) action2 - 1, 2, 3, 4, 5
+4. dope sheet에서 수정한다. 
+5. 이제 1번 오브젝트로 들어가서 action1 - 1과 action1- 2를 push down한다. 
+6. 2번 오브젝트는 action1-2/aciotn2-2 . 반복
+7. 이제 fbx로 뱉을 떄 NLA(모든 액션 말고)
+ 
+이후 fbx로 내뱉으면 된다.
+
+
+가서 
+1. fbx파일 꺼내서 animator를 컴포넌트로, 그 animator에 만든 animation클립을 넣으면 된다.
+
+1. 여러개 틀고 싶으면 time line을 설정
+2. time line 애니메이션 트랙에 애니메이션과 그 애니메이션이 작동할 오브젝트 넣기
+
+
+
 
 
 
